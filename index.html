@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Q Scan – Free QR &amp; Barcode Scanner</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap">
+<style>
+:root{--bg:#eef2f9;--surface:#fff;--ink:#0f172a;--muted:#5b6780;--line:#dbe2ef;--a1:#3a46ff;--a2:#00c2a8;--on:#fff;--bad:#c2410c;--shadow:0 10px 30px rgba(30,50,120,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1020;--surface:#121a2e;--ink:#eaf0ff;--muted:#93a1c0;--line:#25304b;--a1:#7c87ff;--a2:#2fe0c4;--on:#0a1020;--bad:#ff9a6b;--shadow:0 10px 30px rgba(0,0,0,.4)}}
+:root[data-theme="dark"]{--bg:#0a1020;--surface:#121a2e;--ink:#eaf0ff;--muted:#93a1c0;--line:#25304b;--a1:#7c87ff;--a2:#2fe0c4;--on:#0a1020;--bad:#ff9a6b;--shadow:0 10px 30px rgba(0,0,0,.4)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Tajawal",system-ui,sans-serif;font-size:17px;line-height:1.65}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--a1);outline-offset:2px}
+.frame{border:1.5px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(135deg,var(--a1),var(--a2)) border-box;border-radius:18px;box-shadow:var(--shadow)}
+#splash{position:fixed;inset:0;z-index:50;background:linear-gradient(160deg,#1b1fd6,#00a58f);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .5s,visibility .5s}
+#splash.hide{opacity:0;visibility:hidden}
+.mark{width:92px;height:92px;border-radius:26px;background:#fff;display:grid;place-items:center;box-shadow:0 16px 40px rgba(0,0,0,.3);animation:pop .8s ease both}
+.mark svg{width:56px;height:56px}
+.sn{font-size:34px;font-weight:900;margin:6px 0 0;letter-spacing:.5px}
+#splash p{margin:0;opacity:.9}
+.spin{width:38px;height:38px;border:4px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:rot .9s linear infinite;margin-top:10px}
+@keyframes rot{to{transform:rotate(360deg)}}@keyframes pop{from{transform:scale(.6);opacity:0}}
+.app{max-width:560px;margin:0 auto;padding:0 14px 96px}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;display:flex;align-items:center;gap:6px;padding:10px 0;background:var(--bg)}
+.bar h1{flex:1;margin:0;font-size:21px;font-weight:900;display:flex;align-items:center;gap:8px}
+.bar h1 b{background:linear-gradient(135deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.ib{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:var(--surface);border:1px solid var(--line);font-weight:900;font-size:15px}
+.card{padding:16px;margin-bottom:14px}
+.btn{border:0;background:linear-gradient(135deg,var(--a1),var(--a2));color:var(--on);font-weight:700;padding:11px 18px;border-radius:12px;display:inline-flex;align-items:center;gap:8px}
+.btn.alt{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.sm{padding:6px 12px;font-size:15px}
+.btn:disabled{opacity:.6}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.cam{position:relative;background:#050912;border-radius:14px;overflow:hidden;aspect-ratio:1/1;display:block;margin-bottom:12px}
+.cam video{width:100%;height:100%;object-fit:cover}
+.vf{position:absolute;inset:16%}
+.vf i{position:absolute;width:34px;height:34px;border:4px solid var(--a2)}
+.vf i:nth-child(1){top:0;inset-inline-start:0;border-right:0;border-bottom:0;border-start-start-radius:12px}
+.vf i:nth-child(2){top:0;inset-inline-end:0;border-left:0;border-bottom:0;border-start-end-radius:12px}
+.vf i:nth-child(3){bottom:0;inset-inline-start:0;border-right:0;border-top:0;border-end-start-radius:12px}
+.vf i:nth-child(4){bottom:0;inset-inline-end:0;border-left:0;border-top:0;border-end-end-radius:12px}
+.vf u{position:absolute;left:4%;right:4%;height:3px;background:var(--a2);box-shadow:0 0 14px var(--a2);animation:ln 2s ease-in-out infinite alternate}
+@keyframes ln{from{top:6%}to{top:92%}}
+@media (prefers-reduced-motion:reduce){.vf u,.spin,.mark{animation:none}}
+label{display:block;font-weight:700;margin:10px 0 4px;font-size:15px}
+input,select{width:100%;font:inherit;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
+.res{word-break:break-all;direction:ltr;text-align:start;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px;margin:8px 0;white-space:pre-wrap}
+.msg{color:var(--muted);font-size:15px;margin:8px 0 0}.msg.err{color:var(--bad)}
+.kind{display:inline-block;background:linear-gradient(135deg,var(--a1),var(--a2));color:var(--on);font-weight:700;font-size:14px;padding:2px 12px;border-radius:99px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:16px}
+.kv span{color:var(--muted);flex:none}.kv b{text-align:end;word-break:break-word}
+#out{text-align:center;display:none}
+#qr{display:inline-block;background:#fff;padding:14px;border-radius:14px;margin:6px 0 12px;border:1px solid var(--line)}
+#qr canvas{display:none}
+.h-item{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.h-item:last-child{border:0}
+.h-txt{flex:1;min-width:0;direction:ltr;text-align:start;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tag{font-size:13px;color:var(--muted);flex:none}
+nav.bottom{position:fixed;inset-inline:0;bottom:0;padding:8px 14px calc(8px + env(safe-area-inset-bottom,0px));background:var(--bg);z-index:10}
+nav.bottom div{max-width:560px;margin:0 auto;display:flex;padding:5px;gap:4px;background:var(--surface)}
+nav.bottom button{flex:1;border:0;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:0;padding:6px 0;border-radius:12px;font-weight:700;font-size:13px}
+nav.bottom button[aria-selected="true"]{background:linear-gradient(135deg,var(--a1),var(--a2));color:var(--on)}
+#drawer{position:fixed;inset:0;z-index:30;display:none}
+#drawer.open{display:block}
+#drawer .ov{position:absolute;inset:0;background:rgba(5,10,25,.55)}
+#drawer .pn{position:absolute;top:0;bottom:0;inset-inline-start:0;width:min(82%,320px);background:var(--surface);padding:calc(16px + env(safe-area-inset-top,0px)) 16px 16px;display:flex;flex-direction:column;gap:8px;border-inline-end:1.5px solid var(--a1)}
+#drawer .pn button{display:flex;align-items:center;gap:12px;background:transparent;border:0;padding:12px 10px;border-radius:12px;text-align:start;font-weight:700;width:100%}
+#drawer .pn button:hover{background:var(--bg)}
+#drawer .pn p{color:var(--muted);font-size:15px;margin:10px 4px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div id="splash" role="status" aria-live="polite">
+<div class="mark"><svg viewBox="0 0 64 64"><rect x="6" y="6" width="22" height="22" rx="5" fill="#2f3dff"/><rect x="36" y="6" width="22" height="22" rx="5" fill="#2f3dff"/><rect x="6" y="36" width="22" height="22" rx="5" fill="#2f3dff"/><rect x="36" y="36" width="9" height="9" rx="2" fill="#00a58f"/><rect x="49" y="49" width="9" height="9" rx="2" fill="#00a58f"/><rect x="49" y="36" width="9" height="9" rx="2" fill="#2f3dff"/></svg></div>
+<div class="sn">Q Scan</div><p data-i="tag"></p><div class="spin" aria-hidden="true"></div>
+</div>
+
+<div class="app">
+<header class="bar">
+<button class="ib" id="menuBtn" data-al="menu" data-ic="menu"></button>
+<h1><b>Q Scan</b></h1>
+<button class="ib" id="langBtn" data-al="lang"></button>
+<button class="ib" id="themeBtn" data-al="theme"></button>
+</header>
+
+<section id="scan">
+<div class="card frame">
+<div class="cam" id="cam"><video id="vid" playsinline muted></video><div class="vf"><i></i><i></i><i></i><i></i><u></u></div></div>
+<div class="row">
+<button class="btn alt" id="torchBtn" hidden><svg class="i" data-ic="bolt"></svg><span data-i="torch"></span></button>
+<input type="file" id="file" accept="image/*" hidden>
+</div>
+<p class="msg" id="sMsg" data-i="hint"></p>
+</div>
+<div class="card frame" id="result" hidden>
+<strong data-i="result"></strong> <span class="kind" id="kind"></span>
+<div class="res" id="resTxt"></div>
+<div id="info"></div>
+<div id="prod" hidden>
+<label for="nm" data-i="name"></label><input id="nm" data-ph="phName">
+<label for="pr" data-i="price"></label><input id="pr" data-ph="phPrice">
+<div class="row" style="margin:10px 0"><button class="btn alt sm" id="aiBtn" hidden data-i="ai"></button></div>
+<p class="msg" id="aiMsg" aria-live="polite"></p><div id="aiOut"></div>
+</div>
+<div class="row" style="margin-top:12px">
+<button class="btn sm" id="copyBtn" data-i="copy"></button>
+<button class="btn alt sm" id="openBtn" hidden data-i="open"></button>
+<button class="btn alt sm" id="shBtn" data-i="share"></button>
+</div>
+<p class="msg" id="rMsg" aria-live="polite"></p>
+</div>
+</section>
+
+<section id="make" hidden>
+<div class="card frame">
+<label for="type" data-i="ctype"></label>
+<select id="type"></select>
+<div id="fields"></div>
+<div class="row" style="margin-top:14px"><button class="btn" id="genBtn" data-i="gen"></button></div>
+<p class="msg err" id="gMsg" aria-live="polite"></p>
+</div>
+<div class="card frame" id="out">
+<div id="qr"></div>
+<div class="row" style="justify-content:center"><button class="btn" id="shareBtn" data-i="shareQr"></button></div>
+<p class="msg" id="oMsg" aria-live="polite"></p>
+</div>
+</section>
+
+<section id="hist" hidden>
+<div class="card frame"><div id="hList"></div>
+<div class="row" style="margin-top:10px"><button class="btn alt sm" id="clrBtn" data-i="clear"></button></div></div>
+</section>
+</div>
+
+<nav class="bottom" aria-label="Main"><div class="frame" role="tablist">
+<button role="tab" data-p="scan" aria-selected="true"><svg class="i" data-ic="scan"></svg><span data-i="scan"></span></button>
+<button role="tab" data-p="make" aria-selected="false"><svg class="i" data-ic="plus"></svg><span data-i="create"></span></button>
+<button role="tab" data-p="hist" aria-selected="false"><svg class="i" data-ic="clock"></svg><span data-i="history"></span></button>
+<button id="imgBtn"><svg class="i" data-ic="img"></svg><span data-i="img"></span></button>
+</div></nav>
+
+<div id="drawer" aria-hidden="true"><div class="ov" id="ov"></div>
+<div class="pn" role="dialog" aria-modal="true">
+<button id="dClose"><svg class="i" data-ic="x"></svg><span data-i="close"></span></button>
+<button data-go="scan"><svg class="i" data-ic="scan"></svg><span data-i="scan"></span></button>
+<button data-go="make"><svg class="i" data-ic="plus"></svg><span data-i="create"></span></button>
+<button data-go="hist"><svg class="i" data-ic="clock"></svg><span data-i="history"></span></button>
+<button id="dLang"><svg class="i" data-ic="globe"></svg><span data-i="langName"></span></button>
+<button id="dTheme"><svg class="i" data-ic="moon"></svg><span data-i="theme"></span></button>
+<p data-i="aboutTxt"></p>
+</div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)},R=document.documentElement;
+var T={en:{tag:'Scan. Create. Free.',scan:'Scan',create:'Create',history:'History',camOn:'Start camera',camOff:'Stop camera',img:'Scan image',torch:'Flash',hint:'Point the camera at a QR code or barcode.',looking:'Looking for a code…',done:'Scanned ✓',camErr:'Camera unavailable. Please allow camera access.',noCode:'No code found in this image.',libFail:'Reader failed to load. Check your connection.',result:'Result',copy:'Copy',copied:'Copied',open:'Open link',share:'Share',name:'Product name',price:'Price',phName:'Type it, or use AI',phPrice:'e.g. 12.50 MAD',ai:'Identify product with AI',aiBusy:'Identifying…',aiNote:'AI estimate, may be inaccurate. Check the package.',aiNone:'Could not identify it. Enter the name yourself.',aiFail:'Identification failed.',brand:'Brand',category:'Category',origin:'Made in',kProduct:'Product barcode',kBook:'Book (ISBN)',kUrl:'Link',kWifi:'Wi-Fi network',kPhone:'Phone number',kMail:'Email',kText:'Text / barcode',kGs1:'GS1 barcode',rNum:'Number',rChk:'Check digit',ok:'Valid ✓',bad:'Invalid, code may be damaged',rSrc:'Source (company registered in)',rHost:'Website',rWarn:'Warning',wHttp:'Not encrypted (http)',wOdd:'Unusual address, be careful',rSsid:'Network',rPass:'Password',rLen:'Length',chars:'chars',rBatch:'Batch',rProd:'Production date',rBest:'Best before',rExp:'Expiry date',rSerial:'Serial',rWeight:'Weight (kg)',rScan:'Scanned on',unk:'Unknown',store:'Store internal code',issn:'Periodical (ISSN)',ctype:'Code type',tText:'Text or link',tWifi:'Wi-Fi network',tPhone:'Phone number',tMail:'Email',fText:'Text or link',fSsid:'Network name',fPass:'Password',fSec:'Security',none:'None',fPhone:'Phone',fMail:'Email',fSubj:'Subject (optional)',gen:'Generate',fill:'Enter the data first.',tooLong:'Too long for one code.',genFail:'Could not create the code.',shareQr:'Share / save',shareNo:'Sharing unavailable here. Long-press the code to save it.',empty:'Nothing here yet.',view:'View',del:'Delete',clear:'Clear history',hScan:'Scan',hMake:'Create',menu:'Menu',close:'Close',lang:'Language',langName:'العربية',theme:'Dark / light mode',aboutTxt:'Free QR and barcode scanner and generator. No ads, no limits, no account. Everything runs on your device.'},
+ar:{tag:'امسح. أنشئ. مجانًا.',scan:'مسح',create:'إنشاء',history:'السجل',camOn:'تشغيل الكاميرا',camOff:'إيقاف الكاميرا',img:'مسح من صورة',torch:'الفلاش',hint:'وجّه الكاميرا نحو QR أو باركود.',looking:'جارٍ البحث عن رمز…',done:'تم المسح ✓',camErr:'تعذّر تشغيل الكاميرا. اسمح بإذن الكاميرا.',noCode:'لم أجد رمزًا في هذه الصورة.',libFail:'تعذّر تحميل أداة القراءة. تحقق من الاتصال.',result:'النتيجة',copy:'نسخ',copied:'تم النسخ',open:'فتح الرابط',share:'مشاركة',name:'اسم المنتج',price:'التمن',phName:'اكتبه أو استعمل الذكاء الاصطناعي',phPrice:'مثال: 12.50 درهم',ai:'تعرّف على المنتج بالذكاء الاصطناعي',aiBusy:'جارٍ التعرف…',aiNote:'تقدير من الذكاء الاصطناعي قد يكون خاطئًا. راجع العبوة.',aiNone:'لم أتعرّف عليه. اكتب الاسم بنفسك.',aiFail:'تعذّر التعرف.',brand:'الماركة',category:'الفئة',origin:'بلد الصنع',kProduct:'باركود منتج',kBook:'كتاب (ISBN)',kUrl:'رابط',kWifi:'شبكة واي فاي',kPhone:'رقم هاتف',kMail:'بريد إلكتروني',kText:'نص أو باركود',kGs1:'باركود GS1',rNum:'الرقم',rChk:'المجموع الاختباري',ok:'صحيح ✓',bad:'غير صحيح، قد يكون تالفًا',rSrc:'المصدر (بلد تسجيل الشركة)',rHost:'الموقع',rWarn:'تنبيه',wHttp:'غير مشفّر (http)',wOdd:'عنوان غير معتاد، كن حذرًا',rSsid:'الشبكة',rPass:'كلمة المرور',rLen:'الطول',chars:'حرفًا',rBatch:'الدفعة',rProd:'تاريخ الإنتاج',rBest:'الأفضل قبل',rExp:'تاريخ الانتهاء',rSerial:'الرقم التسلسلي',rWeight:'الوزن (كغ)',rScan:'تاريخ المسح',unk:'غير معروف',store:'رمز داخلي لمتجر',issn:'دورية (ISSN)',ctype:'نوع الرمز',tText:'نص أو رابط',tWifi:'شبكة واي فاي',tPhone:'رقم هاتف',tMail:'بريد إلكتروني',fText:'النص أو الرابط',fSsid:'اسم الشبكة',fPass:'كلمة المرور',fSec:'الحماية',none:'بدون',fPhone:'الهاتف',fMail:'البريد',fSubj:'الموضوع (اختياري)',gen:'أنشئ الرمز',fill:'أدخل البيانات أولًا.',tooLong:'طويل جدًا لرمز واحد.',genFail:'تعذّر إنشاء الرمز.',shareQr:'مشاركة أو حفظ',shareNo:'المشاركة غير متاحة. اضغط مطولًا على الرمز لحفظه.',empty:'لا شيء بعد.',view:'عرض',del:'حذف',clear:'مسح السجل',hScan:'مسح',hMake:'إنشاء',menu:'القائمة',close:'إغلاق',lang:'اللغة',langName:'English',theme:'الوضع الليلي / النهاري',aboutTxt:'ماسح ومنشئ QR وباركود مجاني. بلا إعلانات ولا حدود ولا حساب. كل شيء يعمل على جهازك.'}};
+var P='M';var IC={menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',scan:'<path d="M4 8V5a1 1 0 011-1h3M16 4h3a1 1 0 011 1v3M20 16v3a1 1 0 01-1 1h-3M8 20H5a1 1 0 01-1-1v-3M4 12h16"/>',plus:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M17.5 14v7M14 17.5h7"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/>',moon:'<path d="M20 14.5A8 8 0 019.5 4 8 8 0 1020 14.5z"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/>',img:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 9"/>',bolt:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>'};
+function svg(n){return '<svg class="i" viewBox="0 0 24 24">'+IC[n]+'</svg>'}
+var lang='en',KEY='qrapp2_hist',hist=[],stream=null,raf=0,detector=null,lastRes='',cur=null,sampleFn=null,curCode='',track=null,torchOn=false;
+function store(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function load(k){try{return localStorage.getItem(k)}catch(e){return null}}
+try{if('BarcodeDetector' in window)detector=new BarcodeDetector()}catch(e){}
+try{hist=JSON.parse(load(KEY)||'[]')}catch(e){hist=[]}
+function t(k){return (T[lang]&&T[lang][k])||T.en[k]||k}
+function persist(){store(KEY,JSON.stringify(hist.slice(0,100)))}
+
+/* theme + language */
+function curTheme(){return R.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}
+function setTheme(m){R.dataset.theme=m;store('qrapp2_theme',m);themeIcon()}
+function themeIcon(){var h=svg(curTheme()==='dark'?'sun':'moon');$('themeBtn').innerHTML=h;var d=$('dTheme').querySelector('svg');if(d)d.outerHTML=h}
+$('themeBtn').onclick=$('dTheme').onclick=function(){setTheme(curTheme()==='dark'?'light':'dark')};
+function applyLang(){
+  R.lang=lang;R.dir='ltr';
+  document.querySelectorAll('[data-i]').forEach(function(e){e.textContent=t(e.dataset.i)});
+  document.querySelectorAll('[data-ph]').forEach(function(e){e.placeholder=t(e.dataset.ph)});
+  document.querySelectorAll('[data-al]').forEach(function(e){e.setAttribute('aria-label',t(e.dataset.al))});
+  $('langBtn').textContent=lang==='ar'?'EN':'ع';
+  $('type').innerHTML='';['text','wifi','tel','mail'].forEach(function(v,i){var o=document.createElement('option');o.value=v;o.textContent=t(['tText','tWifi','tPhone','tMail'][i]);$('type').appendChild(o)});
+  fields();renderHist();
+  if(!$('result').hidden)showResult(lastRes,false,cur);
+}
+function setLang(l){lang=l;store('qrapp2_lang',l);applyLang()}
+$('langBtn').onclick=$('dLang').onclick=function(){setLang(lang==='en'?'ar':'en')};
+document.querySelectorAll('[data-ic]').forEach(function(e){var h=svg(e.dataset.ic);if(e.tagName==='svg')e.outerHTML=h;else e.innerHTML=h});
+
+/* nav + drawer */
+function show(p){
+  ['scan','make','hist'].forEach(function(id){$(id).hidden=id!==p});
+  document.querySelectorAll('nav.bottom button').forEach(function(b){b.setAttribute('aria-selected',b.dataset.p===p)});
+  if(p!=='scan')stopCam();else if(!stream&&started)startCam();window.scrollTo(0,0);
+}
+document.querySelectorAll('nav.bottom button').forEach(function(b){b.onclick=function(){show(b.dataset.p)}});
+function drawer(o){$('drawer').classList.toggle('open',o);$('drawer').setAttribute('aria-hidden',!o)}
+$('menuBtn').onclick=function(){drawer(true)};$('ov').onclick=$('dClose').onclick=function(){drawer(false)};
+document.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){show(b.dataset.go);drawer(false)}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')drawer(false)});
+
+/* data helpers */
+var CT=[[0,139,'US'],[300,379,'FR'],[400,440,'DE'],[450,459,'JP'],[460,469,'RU'],[471,471,'TW'],[489,489,'HK'],[490,499,'JP'],[500,509,'GB'],[520,521,'GR'],[528,528,'LB'],[529,529,'CY'],[539,539,'IE'],[540,549,'BE'],[560,560,'PT'],[570,579,'DK'],[590,590,'PL'],[594,594,'RO'],[599,599,'HU'],[600,601,'ZA'],[603,603,'GH'],[604,604,'SN'],[608,608,'BH'],[609,609,'MU'],[611,611,'MA'],[613,613,'DZ'],[616,616,'KE'],[618,618,'CI'],[619,619,'TN'],[621,621,'SY'],[622,622,'EG'],[624,624,'LY'],[625,625,'JO'],[626,626,'IR'],[627,627,'KW'],[628,628,'SA'],[629,629,'AE'],[640,649,'FI'],[690,699,'CN'],[700,709,'NO'],[730,739,'SE'],[750,750,'MX'],[754,755,'CA'],[760,769,'CH'],[789,790,'BR'],[800,839,'IT'],[840,849,'ES'],[858,858,'SK'],[859,859,'CZ'],[868,869,'TR'],[870,879,'NL'],[880,880,'KR'],[885,885,'TH'],[888,888,'SG'],[890,890,'IN'],[893,893,'VN'],[896,896,'PK'],[899,899,'ID'],[900,919,'AT'],[930,939,'AU'],[940,949,'NZ'],[955,955,'MY']];
+function cname(c){try{return new Intl.DisplayNames([lang],{type:'region'}).of(c)||c}catch(e){return c}}
+function countryOf(d){
+  if(d.length===12)d='0'+d;if(d.length===14)d=d.slice(1);
+  var h=d.slice(0,3),p=+h;
+  if(h==='978'||h==='979')return t('kBook');if(h==='977')return t('issn');
+  if(d[0]==='2'||h.slice(0,2)==='04')return t('store');
+  for(var i=0;i<CT.length;i++)if(p>=CT[i][0]&&p<=CT[i][1])return cname(CT[i][2]);
+  return t('unk');
+}
+function chk(d){var n=d.length,s=0;for(var i=0;i<n-1;i++)s+=(+d[n-2-i])*(i%2===0?3:1);return (10-s%10)%10===+d[n-1]}
+function fmtDate(v){var d=v.slice(4,6);return (d==='00'?'':d+'/')+v.slice(2,4)+'/'+(2000+(+v.slice(0,2)))}
+function parseGS1(s){
+  var raw=s.replace(/^\]C1/,''),pairs=[],m,gt='';
+  if(/^\(\d{2,4}\)/.test(raw)){var re=/\((\d{2,4})\)([^(]*)/g;while((m=re.exec(raw)))pairs.push([m[1],m[2]])}
+  else if(/^01\d{14}[\d\x1d]./.test(raw)){
+    var fx={'01':14,'11':6,'13':6,'15':6,'17':6},p=0;
+    while(p<raw.length){var ai=raw.substr(p,2);p+=2;
+      if(fx[ai]){pairs.push([ai,raw.substr(p,fx[ai])]);p+=fx[ai]}
+      else if(ai==='10'||ai==='21'){var e=raw.indexOf('\x1d',p);if(e<0)e=raw.length;pairs.push([ai,raw.slice(p,e)]);p=e+1}
+      else break}
+  }
+  if(!pairs.length)return null;
+  var rows=[],lb={'10':'rBatch','11':'rProd','13':'rProd','15':'rBest','17':'rExp','21':'rSerial'};
+  pairs.forEach(function(q){var a=q[0],v=q[1];
+    if(a==='01'||a==='02'){gt=v;rows.push(['GTIN',v]);rows.push([t('rSrc'),countryOf(v)])}
+    else if(lb[a])rows.push([t(lb[a]),/^(11|13|15|17)$/.test(a)&&v.length===6?fmtDate(v):v]);
+    else if(/^310\d$/.test(a))rows.push([t('rWeight'),String(+v/Math.pow(10,+a[3]))]);
+    else if(/^39[23]\d$/.test(a))rows.push([t('price'),String(+v/Math.pow(10,+a[3]))]);
+    else rows.push(['AI '+a,v])});
+  return {rows:rows,gtin:gt};
+}
+function isUrl(s){return /^https?:\/\//i.test(s)}
+function analyze(s0){
+  var s=s0.trim(),rows=[],m,g=parseGS1(s);
+  if(g)return {kind:t('kGs1'),rows:g.rows,code:g.gtin};
+  if(/^(\d{8}|\d{12,14})$/.test(s)){
+    var isb=/^97[89]/.test(s)&&s.length===13;
+    return {kind:isb?t('kBook'):t('kProduct')+' · '+(s.length===13?'EAN-13':s.length===12?'UPC-A':s.length===8?'EAN-8':'GTIN-14'),rows:[[t('rNum'),s],[t('rChk'),chk(s)?t('ok'):t('bad')],[t('rSrc'),countryOf(s)]],code:s};
+  }
+  if(isUrl(s)){
+    try{var u=new URL(s);rows.push([t('rHost'),u.hostname]);
+      if(u.protocol==='http:')rows.push([t('rWarn'),t('wHttp')]);
+      if(/^\d+\.\d+\.\d+\.\d+$/.test(u.hostname)||u.hostname.indexOf('xn--')>-1)rows.push([t('rWarn'),t('wOdd')])}catch(e){}
+    return {kind:t('kUrl'),rows:rows};
+  }
+  if(s.indexOf('WIFI:')===0){
+    var re=/(?:^WIFI:|;)([TSPH]):((?:\\.|[^;])*)/g,w={};
+    while((m=re.exec(s)))w[m[1]]=m[2].replace(/\\(.)/g,'$1');
+    if(w.S)rows.push([t('rSsid'),w.S]);if(w.P)rows.push([t('rPass'),w.P]);
+    return {kind:t('kWifi'),rows:rows};
+  }
+  if(/^tel:/i.test(s))return {kind:t('kPhone'),rows:[[t('rNum'),s.slice(4)]]};
+  if(/^mailto:/i.test(s))return {kind:t('kMail'),rows:[[t('kMail'),s.slice(7).split('?')[0]]]};
+  return {kind:t('kText'),rows:[[t('rLen'),s.length+' '+t('chars')]]};
+}
+
+/* history */
+function add(kind,text){var it={k:kind,t:text,d:Date.now()};hist.unshift(it);hist=hist.slice(0,100);persist();renderHist();return it}
+function renderHist(){
+  var l=$('hList');l.innerHTML='';
+  if(!hist.length){var p=document.createElement('p');p.className='msg';p.textContent=t('empty');l.appendChild(p);$('clrBtn').hidden=true;return}
+  $('clrBtn').hidden=false;
+  hist.forEach(function(h,i){
+    var d=document.createElement('div');d.className='h-item';
+    var tg=document.createElement('span');tg.className='tag';tg.textContent=t(h.k==='scan'?'hScan':'hMake');
+    var tx=document.createElement('span');tx.className='h-txt';tx.textContent=h.n?h.n+(h.p?' – '+h.p:''):h.t;
+    var vb=document.createElement('button');vb.className='btn alt sm';vb.textContent=t('view');
+    vb.onclick=function(){show('scan');showResult(h.t,false,h)};
+    var db=document.createElement('button');db.className='btn alt sm';db.textContent=t('del');
+    db.onclick=function(){if(cur===h)cur=null;hist.splice(i,1);persist();renderHist()};
+    d.append(tg,tx,vb,db);l.appendChild(d);
+  });
+}
+$('clrBtn').onclick=function(){hist=[];cur=null;persist();renderHist()};
+
+/* result */
+function kv(k,v){var d=document.createElement('div');d.className='kv';var a=document.createElement('span');a.textContent=k;var b=document.createElement('b');b.textContent=v;d.append(a,b);return d}
+function showResult(text,fromScan,item){
+  lastRes=text;cur=item||(fromScan?add('scan',text):null);
+  $('result').hidden=false;$('resTxt').textContent=text;$('rMsg').textContent='';
+  $('openBtn').hidden=!isUrl(text);
+  var a=analyze(text),inf=$('info');
+  $('kind').textContent=a.kind;inf.innerHTML='';
+  a.rows.forEach(function(r){inf.appendChild(kv(r[0],r[1]))});
+  inf.appendChild(kv(t('rScan'),new Date(cur?cur.d:Date.now()).toLocaleString(lang==='ar'?'ar-u-nu-latn':'en-GB')));
+  curCode=a.code||'';
+  $('prod').hidden=!curCode;$('aiOut').innerHTML='';$('aiMsg').textContent='';
+  $('nm').value=(cur&&cur.n)||'';$('pr').value=(cur&&cur.p)||'';
+  $('aiBtn').hidden=!(curCode&&sampleFn);
+  if(fromScan){try{navigator.vibrate&&navigator.vibrate(60)}catch(e){}$('result').scrollIntoView({behavior:'smooth',block:'nearest'})}
+}
+$('nm').oninput=function(){if(cur){cur.n=this.value;persist();renderHist()}};
+$('pr').oninput=function(){if(cur){cur.p=this.value;persist();renderHist()}};
+$('copyBtn').onclick=function(){
+  var ok=function(){$('rMsg').textContent=t('copied')},fail=function(){};
+  try{navigator.clipboard.writeText(lastRes).then(ok,fail)}catch(e){fail()}
+};
+$('openBtn').onclick=function(){if(isUrl(lastRes))window.open(lastRes,'_blank','noopener,noreferrer')};
+$('shBtn').onclick=function(){try{navigator.share?navigator.share({text:lastRes}).catch(function(){}):$('copyBtn').click()}catch(e){}};
+$('aiBtn').onclick=async function(){
+  if(!sampleFn||!curCode)return;
+  var btn=this;btn.disabled=true;$('aiMsg').className='msg';$('aiMsg').textContent=t('aiBusy');
+  try{
+    var r=await sampleFn('Identify the product from barcode '+curCode+' (country of registration by prefix: '+countryOf(curCode)+'). Answer in '+(lang==='ar'?'Arabic':'English')+' with JSON only, no explanation: {name,brand,category,origin}, all strings, null for any field you are not sure about. Never invent a product or a price.');
+    var j=JSON.parse(r.text.replace(/```json|```/g,'').trim()),o=$('aiOut');o.innerHTML='';
+    [['name','name'],['brand','brand'],['category','category'],['origin','origin']].forEach(function(f){var v=j[f[0]];if(v&&v!=='null')o.appendChild(kv(t(f[1]),String(v)))});
+    if(j.name&&j.name!=='null'&&!$('nm').value){$('nm').value=j.name;$('nm').dispatchEvent(new Event('input'))}
+    $('aiMsg').textContent=o.children.length?t('aiNote'):t('aiNone');
+  }catch(e){$('aiMsg').className='msg err';$('aiMsg').textContent=t('aiFail')}
+  btn.disabled=false;
+};
+
+/* scanning */
+var zx=null;
+function zxDecode(c){
+  if(typeof ZXing==='undefined')return null;
+  try{
+    if(!zx){zx=new ZXing.MultiFormatReader();var hs=new Map();hs.set(ZXing.DecodeHintType.TRY_HARDER,true);zx.setHints(hs)}
+    return zx.decode(new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(new ZXing.HTMLCanvasElementLuminanceSource(c)))).getText();
+  }catch(e){return null}
+}
+var cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});
+async function decodeSource(src,w,h){
+  if(detector){try{var r=await detector.detect(src);if(r&&r.length)return r[0].rawValue}catch(e){}}
+  if(typeof jsQR!=='undefined'){var d=cx.getImageData(0,0,w,h),c=jsQR(d.data,w,h,{inversionAttempts:'attemptBoth'});if(c)return c.data}
+  return zxDecode(cv);
+}
+var lastVal='',lastSeen=0,lastRun=0,started=false;
+async function tick(){
+  var v=$('vid');
+  if(stream&&v.readyState>=2&&Date.now()-lastRun>120){
+    lastRun=Date.now();
+    cv.width=v.videoWidth;cv.height=v.videoHeight;cx.drawImage(v,0,0);
+    var r=await decodeSource(v,cv.width,cv.height);
+    if(r){var n=Date.now();if(r!==lastVal||n-lastSeen>1500){$('sMsg').className='msg';$('sMsg').textContent=t('done');showResult(r,true)}lastVal=r;lastSeen=n}
+  }
+  if(stream)raf=requestAnimationFrame(tick);
+}
+async function startCam(){
+  $('sMsg').className='msg';
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+    $('vid').srcObject=stream;await $('vid').play();
+    track=stream.getVideoTracks()[0];
+    try{$('torchBtn').hidden=!(track.getCapabilities&&track.getCapabilities().torch)}catch(e){}
+    $('sMsg').textContent=t('looking');
+    raf=requestAnimationFrame(tick);
+  }catch(e){stream=null;$('sMsg').className='msg err';$('sMsg').textContent=t('camErr')}
+}
+function stopCam(){
+  cancelAnimationFrame(raf);
+  if(stream){stream.getTracks().forEach(function(x){x.stop()});stream=null}
+  torchOn=false;$('torchBtn').hidden=true;
+}
+$('torchBtn').onclick=function(){if(!track)return;torchOn=!torchOn;track.applyConstraints({advanced:[{torch:torchOn}]}).catch(function(){})};
+$('imgBtn').onclick=function(){$('file').click()};
+async function decodeImage(img){
+  var m=[1800,1000,640,420];
+  for(var i=0;i<m.length;i++){
+    var s=Math.min(1,m[i]/Math.max(img.width,img.height)),w=Math.max(1,Math.round(img.width*s)),h=Math.max(1,Math.round(img.height*s)),pad=Math.round(Math.max(w,h)*0.1);
+    cv.width=w+pad*2;cv.height=h+pad*2;cx.fillStyle='#fff';cx.fillRect(0,0,cv.width,cv.height);cx.drawImage(img,pad,pad,w,h);
+    var r=await decodeSource(cv,cv.width,cv.height);if(r)return r;
+  }
+  return null;
+}
+$('file').onchange=function(){
+  var f=this.files[0];if(!f)return;
+  var img=new Image(),url=URL.createObjectURL(f);
+  img.onload=async function(){
+    var r=await decodeImage(img);URL.revokeObjectURL(url);
+    if(r){$('sMsg').className='msg';$('sMsg').textContent=t('done');showResult(r,true)}
+    else{$('sMsg').className='msg err';$('sMsg').textContent=(typeof jsQR==='undefined'&&typeof ZXing==='undefined'&&!detector)?t('libFail'):t('noCode')}
+  };
+  img.onerror=function(){$('sMsg').className='msg err';$('sMsg').textContent=t('noCode')};
+  img.src=url;this.value='';
+};
+
+/* generating */
+function fields(){
+  var ty=$('type').value||'text',h='';
+  if(ty==='text')h='<label for="f1">'+t('fText')+'</label><input id="f1" dir="ltr">';
+  if(ty==='wifi')h='<label for="f1">'+t('fSsid')+'</label><input id="f1" dir="ltr"><label for="f2">'+t('fPass')+'</label><input id="f2" dir="ltr"><label for="f3">'+t('fSec')+'</label><select id="f3"><option value="WPA">WPA / WPA2</option><option value="WEP">WEP</option><option value="nopass">'+t('none')+'</option></select>';
+  if(ty==='tel')h='<label for="f1">'+t('fPhone')+'</label><input id="f1" type="tel" dir="ltr" placeholder="+212600000000">';
+  if(ty==='mail')h='<label for="f1">'+t('fMail')+'</label><input id="f1" type="email" dir="ltr"><label for="f2">'+t('fSubj')+'</label><input id="f2">';
+  $('fields').innerHTML=h;$('out').style.display='none';$('gMsg').textContent='';
+}
+$('type').onchange=fields;
+function esc(s){return s.replace(/([\\;,:"])/g,'\\$1')}
+function build(){
+  var ty=$('type').value,a=(($('f1')||{}).value||'').trim();if(!a)return null;
+  if(ty==='text')return a;
+  if(ty==='tel')return 'tel:'+a.replace(/\s+/g,'');
+  if(ty==='mail'){var s=($('f2').value||'').trim();return 'mailto:'+a+(s?'?subject='+encodeURIComponent(s):'')}
+  var p=$('f2').value,w=$('f3').value;return 'WIFI:T:'+w+';S:'+esc(a)+';'+(w==='nopass'?'':'P:'+esc(p)+';')+';';
+}
+$('genBtn').onclick=function(){
+  var v=build();$('gMsg').textContent='';
+  if(!v){$('gMsg').textContent=t('fill');return}
+  if(v.length>1000){$('gMsg').textContent=t('tooLong');return}
+  var q=$('qr');q.innerHTML='';
+  try{
+    if(typeof QRCode==='undefined')throw 0;
+    new QRCode(q,{text:v,width:240,height:240,correctLevel:QRCode.CorrectLevel.M});
+    $('out').style.display='block';$('oMsg').textContent='';add('make',v);
+  }catch(e){$('gMsg').textContent=t('genFail')}
+};
+$('shareBtn').onclick=function(){
+  var c=$('qr').querySelector('canvas');if(!c)return;
+  c.toBlob(async function(b){
+    try{var f=new File([b],'qr.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}
+    catch(e){if(e&&e.name==='AbortError')return}
+    $('oMsg').textContent=t('shareNo');
+  });
+};
+
+/* boot */
+var sv=load('qrapp2_lang');lang=sv==='ar'?'ar':'en';
+var th=load('qrapp2_theme');if(th==='dark'||th==='light')R.dataset.theme=th;
+themeIcon();applyLang();
+try{if(window.claude&&window.claude.use){window.claude.use('sample').then(function(s){sampleFn=s||null;$('aiBtn').hidden=!(curCode&&sampleFn)}).catch(function(){})}}catch(e){}
+var t0=Date.now();
+function go(){$('splash').classList.add('hide');if(!started){started=true;startCam()}}
+function hideSplash(){var d=Math.max(0,1500-(Date.now()-t0));setTimeout(go,d)}
+if(document.readyState==='complete')hideSplash();else window.addEventListener('load',hideSplash);
+setTimeout(go,4000);
+})();
+</script>
+</body>
+</html>
